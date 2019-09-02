@@ -1,0 +1,16 @@
+{
+  "id": "1.14.4-cursepacklocator",
+  "time": "2019-09-01T18:46:04+00:00",
+  "releaseTime": "2019-09-01T18:46:04+00:00",
+  "type": "release",
+  "mainClass": "cpw.mods.modlauncher.Launcher",
+  "inheritsFrom": "1.14.4-forge-28.0.83",
+  "logging": {
+
+  },
+  "libraries": [
+    {
+      "name": "cpw.mods.forge:cursepacklocator:@version@"
+    }
+  ]
+}
