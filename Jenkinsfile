@@ -38,18 +38,17 @@ pipeline {
                 }
             }
             environment {
-                FORGE_MAVEN = credentials('forge-maven-forge-user')
+                FORGE_MAVEN = credentials('forge-maven-cpw-user')
             }
             steps {
-                sh './gradlew ${GRADLE_ARGS} publish -PforgeMavenUser=${FORGE_MAVEN_USR} -PforgeMavenPassword=${FORGE_MAVEN_PSW}'
-                sh 'curl --user ${FORGE_MAVEN} http://files.minecraftforge.net/maven/manage/promote/latest/net.minecraftforge.forgespi/${BUILD_NUMBER}'
+                sh './gradlew ${GRADLE_ARGS} publish -PcpwMavenUser=${FORGE_MAVEN_USR} -PcpwMavenPassword=${FORGE_MAVEN_PSW}'
+                sh 'curl --user ${FORGE_MAVEN} http://files.minecraftforge.net/maven/manage/promote/latest/cpw.mods.forge.cursepacklocator/${BUILD_NUMBER}'
             }
         }
     }
     post {
         always {
           archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
-          junit 'build/test-results/*/*.xml'
           jacoco sourcePattern: '**/src/*/java'
         }
     }
