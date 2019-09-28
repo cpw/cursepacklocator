@@ -17,6 +17,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
@@ -28,7 +29,8 @@ public class FileCacheManager {
     private final Path files;
 
     FileCacheManager() {
-        this(Launcher.INSTANCE.environment().getProperty(IEnvironment.Keys.ASSETSDIR.get()).orElseThrow(() -> new IllegalStateException("MISSING ASSETS DIR?")));
+        this(Launcher.INSTANCE.environment().getProperty(IEnvironment.Keys.ASSETSDIR.get())
+                .orElseGet(()->DirHandler.createOrGetDirectory(Paths.get("."), "cursecache")));
     }
 
     public FileCacheManager(final Path assetsDir) {
