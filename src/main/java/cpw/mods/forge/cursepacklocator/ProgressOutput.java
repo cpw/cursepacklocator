@@ -100,8 +100,6 @@ class ProgressOutput {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-
 
         long window = glfwCreateWindow(screenWidth, screenHeight, "CursePackLocator mod download progress", NULL, NULL);
         if (window == NULL) {
@@ -129,8 +127,6 @@ class ProgressOutput {
         glfwShowWindow(window);
         GL.createCapabilities();
         glClearColor(0.1f, 0.1f, 0.3f, 0.0f);
-        Callback debugProc = GLUtil.setupDebugMessageCallback(); // may return null if the debug mode is not available
-
 
         while (isRunning && !glfwWindowShouldClose(window)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -138,9 +134,6 @@ class ProgressOutput {
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
-        // cleanup
-        if ( debugProc != null )
-            debugProc.free();
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
         glfwTerminate();
