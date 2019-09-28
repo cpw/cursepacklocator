@@ -30,9 +30,11 @@ public class CursePack {
     private List<String> fileNames = new ArrayList<>();
     private Set<String> excludedProjectIds = new HashSet<>();
     private Set<String> excludedFileIds = new HashSet<>();
+    private ProgressOutput progress;
 
-    public CursePack(final Path gameDir, final FileCacheManager fileCacheManager) {
+    public CursePack(final Path gameDir, final FileCacheManager fileCacheManager, ProgressOutput progress) {
         this.fileCacheManager = fileCacheManager;
+        this.progress = progress;
         JsonObject manifest1 = null;
         this.gameDir = gameDir;
         if (!Files.exists(gameDir.resolve("manifest.json"))) {
@@ -66,6 +68,7 @@ public class CursePack {
     public void startPackDownload() {
         final JsonArray files = manifest.getAsJsonArray("files");
         LOGGER.info("Found {} files in pack to consider", files.size());
+        progress.setFileCount(files.size());
         final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         final CompletableFuture<List<String>> result = CompletableFuture.completedFuture(Collections.synchronizedList(fileNames));
         packDownload = CompletableFuture.allOf(StreamSupport.stream(files.spliterator(), false)
@@ -107,6 +110,7 @@ public class CursePack {
     }
 
     private void finished(final Void voivod, final Throwable throwable) {
+        progress.finish();
         if (throwable != null) {
             validPack = false;
             LOGGER.catching(throwable);
@@ -120,12 +124,13 @@ public class CursePack {
         final String fileID = file.get("fileID").getAsString();
 
         PackFile packFile = new PackFile(projectID, fileID);
-        packFile.loadFileIntoPlace(getCurseModPath(), this.fileCacheManager);
+        packFile.loadFileIntoPlace(getCurseModPath(), this.fileCacheManager, progress);
         return packFile;
     }
 
     public void waitForPackDownload() {
         try {
+            progress.progressDisplayLoop();
             packDownload.get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);

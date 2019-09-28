@@ -21,22 +21,27 @@ public class PackFile {
         this.fileId = fileId;
     }
 
-    public void loadFileIntoPlace(final Path targetPackDir, final FileCacheManager fileCacheManager) {
+    public void loadFileIntoPlace(final Path targetPackDir, final FileCacheManager fileCacheManager, final ProgressOutput progress) {
         LOGGER.info("CursePackDownloader is loading file {} - {}", this.projectId, this.fileId);
         final Path path = fileCacheManager.downloadFile(this.projectId, this.fileId);
         final JsonObject info = fileCacheManager.downloadInfo(this.projectId, this.fileId);
         this.fileName = info.get("fileName").getAsString();
-        final Path targetFile = targetPackDir.resolve(this.fileName);
-        if (Files.exists(targetFile) && fileCacheManager.validateFile(targetFile, info.get("packageFingerprint").getAsLong())) {
-            LOGGER.info("Skipping existing file {}", this.fileName);
-            return;
-        }
+        progress.beginFile(projectId, fileId, fileName);
         try {
-            Files.copy(path, targetFile, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            final Path targetFile = targetPackDir.resolve(this.fileName);
+            if (Files.exists(targetFile) && fileCacheManager.validateFile(targetFile, info.get("packageFingerprint").getAsLong())) {
+                LOGGER.info("Skipping existing file {}", this.fileName);
+                return;
+            }
+            try {
+                Files.copy(path, targetFile, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            LOGGER.info("CursePackDownloader has loaded file {} - {} ({})", this.projectId, this.fileId, this.fileName);
+        } finally {
+            progress.endFile(projectId, fileId);
         }
-        LOGGER.info("CursePackDownloader has loaded file {} - {} ({})", this.projectId, this.fileId, this.fileName);
     }
 
     public String getFileName() {

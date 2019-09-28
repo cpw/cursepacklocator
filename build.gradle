@@ -14,6 +14,9 @@ group 'cpw.mods.forge'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+project.ext.lwjglVersion = "3.2.1"
+project.ext.jomlVersion = "1.9.17"
+
 repositories {
     mavenCentral()
     maven {
@@ -86,6 +89,13 @@ dependencies {
     implementation("cpw.mods:modlauncher:3.2.+")
     implementation("com.google.code.gson:gson:2.8.0")
     implementation("org.apache.logging.log4j:log4j-api:2.11.2")
+
+    // lwjgl and glfw for progress window, provided by Minecraft client
+    compileOnly("org.lwjgl:lwjgl:$lwjglVersion")
+    compileOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion")
+    compileOnly("org.lwjgl:lwjgl-opengl:$lwjglVersion")
+    compileOnly("org.lwjgl:lwjgl-stb:$lwjglVersion")
+    compileOnly("org.joml:joml:${jomlVersion}")
 }
 
 task zip(type: Zip, dependsOn: jar) {

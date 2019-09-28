@@ -28,12 +28,12 @@ public class CurseLocator implements IModLocator {
                 .getProperty(IEnvironment.Keys.GAMEDIR.get())
                 .orElseThrow(()->new IllegalStateException("MISSING GAMEDIR?!"));
         fileCacheManager = new FileCacheManager();
-        pack = new CursePack(gameDir, fileCacheManager);
+        pack = new CursePack(gameDir, fileCacheManager, new ProgressOutput());
     }
 
     public CurseLocator(Path dir) throws IOException {
         fileCacheManager = new FileCacheManager(DirHandler.createOrGetDirectory(dir, "dummycache"));
-        pack = new CursePack(dir, fileCacheManager);
+        pack = new CursePack(dir, fileCacheManager, new ProgressOutput());
     }
 
     @Override
