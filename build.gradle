@@ -51,7 +51,13 @@ test {
 }
 
 ext.sharedManifest = manifest {
-    attributes(["Specification-Title"     : "cursepackloader",
+    attributes(
+            "Class-Path": "forge.jar",
+            'Main-Class': 'net.minecraftforge.server.ServerMain',
+            'ServerLaunchArgs': '--gameDir . --launchTarget fmlserver --fml.forgeVersion 28.1.25 --fml.mcpVersion 20190829.143755 --fml.mcVersion 1.14.4 --fml.forgeGroup net.minecraftforge'
+    )
+    attributes(
+            ["Specification-Title"     : "cursepackloader",
                 "Specification-Vendor"    : "cpw",
                 "Specification-Version"   : "1", // Currently version 3 of the forgespi specification
                 "Implementation-Title"    : project.name,
