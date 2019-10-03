@@ -21,7 +21,7 @@ public class PackFile {
         this.fileId = fileId;
     }
 
-    public void loadFileIntoPlace(final Path targetPackDir, final FileCacheManager fileCacheManager, final ProgressOutput progress) {
+    public void loadFileIntoPlace(final Path targetPackDir, final FileCacheManager fileCacheManager, final IProgressOutput progress) {
         LOGGER.info("CursePackDownloader is loading file {} - {}", this.projectId, this.fileId);
         final Path path = fileCacheManager.downloadFile(this.projectId, this.fileId);
         final JsonObject info = fileCacheManager.downloadInfo(this.projectId, this.fileId);

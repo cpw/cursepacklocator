@@ -2,12 +2,12 @@ package cpw.mods.forge.cursepacklocator;
 
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IEnvironment;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.forgespi.Environment;
 import net.minecraftforge.forgespi.locating.IModFile;
 import net.minecraftforge.forgespi.locating.IModLocator;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -28,12 +28,23 @@ public class CurseLocator implements IModLocator {
                 .getProperty(IEnvironment.Keys.GAMEDIR.get())
                 .orElseThrow(()->new IllegalStateException("MISSING GAMEDIR?!"));
         fileCacheManager = new FileCacheManager();
-        pack = new CursePack(gameDir, fileCacheManager, new ProgressOutput());
+        pack = new CursePack(gameDir, fileCacheManager, getDist().isClient() ? new ClientProgressOutput() : new ServerProgressOutput());
     }
 
     public CurseLocator(Path dir) throws IOException {
         fileCacheManager = new FileCacheManager(DirHandler.createOrGetDirectory(dir, "dummycache"));
-        pack = new CursePack(dir, fileCacheManager, new ProgressOutput());
+        pack = new CursePack(dir, fileCacheManager, getDist().isClient() ? new ClientProgressOutput() : new ServerProgressOutput());
+    }
+
+    private static Dist getDist() {
+        // How to detect dist properly from here?
+        // This will work well enough for displaying progress GUI
+        try {
+            Class.forName("org.lwjgl.glfw.GLFW");
+            return Dist.DEDICATED_SERVER;
+        } catch (ClassNotFoundException ignored) {
+            return Dist.DEDICATED_SERVER;
+        }
     }
 
     @Override

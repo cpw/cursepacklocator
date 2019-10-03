@@ -30,9 +30,9 @@ public class CursePack {
     private List<String> fileNames = new ArrayList<>();
     private Set<String> excludedProjectIds = new HashSet<>();
     private Set<String> excludedFileIds = new HashSet<>();
-    private ProgressOutput progress;
+    private IProgressOutput progress;
 
-    public CursePack(final Path gameDir, final FileCacheManager fileCacheManager, ProgressOutput progress) {
+    public CursePack(final Path gameDir, final FileCacheManager fileCacheManager, IProgressOutput progress) {
         this.fileCacheManager = fileCacheManager;
         this.progress = progress;
         JsonObject manifest1 = null;
@@ -130,7 +130,7 @@ public class CursePack {
 
     public void waitForPackDownload() {
         try {
-            progress.progressDisplayLoop();
+            progress.displayAndWait();
             packDownload.get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);

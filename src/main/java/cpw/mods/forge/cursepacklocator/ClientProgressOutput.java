@@ -2,9 +2,7 @@ package cpw.mods.forge.cursepacklocator;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
-import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_DEBUG_CONTEXT;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
-import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
 import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
 import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
@@ -23,7 +21,6 @@ import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -54,9 +51,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.stb.STBEasyFont;
-import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
@@ -64,9 +59,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-class ProgressOutput {
+class ClientProgressOutput implements IProgressOutput {
 
-    //private final Dist dist;
     private int totalFiles;
     private final AtomicInteger downloadedCount = new AtomicInteger(0);
     private volatile boolean isRunning = false;
@@ -74,22 +68,10 @@ class ProgressOutput {
     private final int screenWidth = 550;
     private final int screenHeight = 60;
 
-    ProgressOutput(/*Dist dist*/) {
-        // this.dist = dist; // I can't figure out how to access dist here
+    ClientProgressOutput() {
     }
 
-    void progressDisplayLoop() {
-        //if (!dist.isClient()) {
-        //    return;
-        //}
-        try {
-            glfwDrawLoop();
-        } catch (Throwable t) {
-            // ignore, this probably means we are dedicated server. TODO: This needs to be changed
-        }
-    }
-
-    private void glfwDrawLoop() {
+    @Override public void displayAndWait() {
         isRunning = true;
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -105,10 +87,6 @@ class ProgressOutput {
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window"); // ignore it and make the GUI optional?
         }
-
-        glfwSetKeyCallback(window, (windowHandle, key, scancode, action, mods) -> {
-            // handle quitting here?
-        });
 
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
@@ -128,7 +106,8 @@ class ProgressOutput {
         GL.createCapabilities();
         glClearColor(0.1f, 0.1f, 0.3f, 0.0f);
 
-        while (isRunning && !glfwWindowShouldClose(window)) {
+        while (isRunning) {
+            // if (glfwWindowShouldClose(window)) { handle closing the window }
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             drawProgress(downloadedCount.get() / (float) totalFiles);
             glfwSwapBuffers(window);
@@ -175,20 +154,20 @@ class ProgressOutput {
         //System.exit(-1);
     }
 
-    void finish() {
+    @Override public void finish() {
         isRunning = false;
     }
 
-    void setFileCount(final int size) {
+    @Override public void setFileCount(final int size) {
         totalFiles = size;
     }
 
     // these 2 methods can be used to display the mods currently being downloaded. It may not be very useful without a file name.
 
-    void beginFile(final String projectID, final String fileID, final String fileName) {
+    @Override public void beginFile(final String projectID, final String fileID, final String fileName) {
     }
 
-    void endFile(final String projectID, final String fileID) {
+    @Override public void endFile(final String projectID, final String fileID) {
         downloadedCount.incrementAndGet();
     }
 }
