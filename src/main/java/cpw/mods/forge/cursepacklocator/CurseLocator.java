@@ -70,9 +70,13 @@ public class CurseLocator implements IModLocator {
         final Function<Path, IModLocator> modFolderLocatorFactory = Launcher.INSTANCE.environment()
                 .getProperty(Environment.Keys.MODFOLDERFACTORY.get())
                 .orElseThrow(()->new RuntimeException("Unable to locate ModsFolder locator factory"));
+        final Consumer<String> progressUpdater = Launcher.INSTANCE.environment()
+                .getProperty(Environment.Keys.PROGRESSMESSAGE.get())
+                .orElseGet(()->s->{});
+        fileCacheManager.setProgressUpdater(progressUpdater);
         final Path cursemods = pack.getCurseModPath();
         wrappedModFolderLocator = modFolderLocatorFactory.apply(cursemods);
-        pack.startPackDownload();
+        pack.startPackDownload(progressUpdater);
     }
 
     @Override

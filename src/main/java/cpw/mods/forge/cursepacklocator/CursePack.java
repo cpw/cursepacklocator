@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -30,6 +31,7 @@ public class CursePack {
     private List<String> fileNames = new ArrayList<>();
     private Set<String> excludedProjectIds = new HashSet<>();
     private Set<String> excludedFileIds = new HashSet<>();
+    private Consumer<String> progressUpdater;
 
     public CursePack(final Path gameDir, final FileCacheManager fileCacheManager) {
         this.fileCacheManager = fileCacheManager;
@@ -63,10 +65,13 @@ public class CursePack {
         return validPack;
     }
 
-    public void startPackDownload() {
+    public void startPackDownload(final Consumer<String> progressUpdater) {
+        this.progressUpdater = progressUpdater;
         final JsonArray files = manifest.getAsJsonArray("files");
+        progressUpdater.accept("Retrieving files for curseforge pack "+manifest.get("name").getAsString());
         LOGGER.info("Found {} files in pack to consider", files.size());
-        final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        progressUpdater.accept("Found "+files.size()+" files in pack");
+        final ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(System.getProperty("cpd.maxThreads", String.valueOf(Runtime.getRuntime().availableProcessors()))));
         final CompletableFuture<List<String>> result = CompletableFuture.completedFuture(Collections.synchronizedList(fileNames));
         packDownload = CompletableFuture.allOf(StreamSupport.stream(files.spliterator(), false)
                 .map(JsonElement::getAsJsonObject)
@@ -119,7 +124,7 @@ public class CursePack {
         final String projectID = file.get("projectID").getAsString();
         final String fileID = file.get("fileID").getAsString();
 
-        PackFile packFile = new PackFile(projectID, fileID);
+        PackFile packFile = new PackFile(projectID, fileID, this.progressUpdater);
         packFile.loadFileIntoPlace(getCurseModPath(), this.fileCacheManager);
         return packFile;
     }

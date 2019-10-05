@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class FileCacheManager {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -27,6 +28,7 @@ public class FileCacheManager {
 
     private final Path infos;
     private final Path files;
+    private Consumer<String> progressUpdater;
 
     FileCacheManager() {
         this(Launcher.INSTANCE.environment().getProperty(IEnvironment.Keys.ASSETSDIR.get())
@@ -113,6 +115,7 @@ public class FileCacheManager {
 
     private Path downloadToFile(final Path target, final String urlToGet) {
         try {
+            progressUpdater.accept("Downloading file "+target.getFileName().toString());
             URL url = new URL(urlToGet);
             LOGGER.info("Downloading from URL {}", urlToGet);
             Files.copy(url.openStream(), target, StandardCopyOption.REPLACE_EXISTING);
@@ -121,5 +124,9 @@ public class FileCacheManager {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    void setProgressUpdater(final Consumer<String> progressUpdater) {
+        this.progressUpdater = progressUpdater;
     }
 }

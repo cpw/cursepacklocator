@@ -9,16 +9,19 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.function.Consumer;
 
 public class PackFile {
     private static final Logger LOGGER = LogManager.getLogger();
     private final String projectId;
     private final String fileId;
+    private final Consumer<String> progressUpdater;
     private String fileName;
 
-    public PackFile(final String projectId, final String fileId) {
+    public PackFile(final String projectId, final String fileId, final Consumer<String> progressUpdater) {
         this.projectId = projectId;
         this.fileId = fileId;
+        this.progressUpdater = progressUpdater;
     }
 
     public void loadFileIntoPlace(final Path targetPackDir, final FileCacheManager fileCacheManager) {

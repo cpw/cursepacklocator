@@ -54,7 +54,7 @@ ext.sharedManifest = manifest {
     attributes(
             "Class-Path": "forge.jar",
             'Main-Class': 'net.minecraftforge.server.ServerMain',
-            'ServerLaunchArgs': '--gameDir . --launchTarget fmlserver --fml.forgeVersion 28.1.25 --fml.mcpVersion 20190829.143755 --fml.mcVersion 1.14.4 --fml.forgeGroup net.minecraftforge'
+            'ServerLaunchArgs': '--gameDir . --launchTarget fmlserver --fml.forgeVersion 28.1.39 --fml.mcpVersion 20190829.143755 --fml.mcVersion 1.14.4 --fml.forgeGroup net.minecraftforge'
     )
     attributes(
             ["Specification-Title"     : "cursepackloader",
@@ -82,7 +82,7 @@ task sourcesJar(type: Jar) {
 
 
 dependencies {
-    implementation("net.minecraftforge:forgespi:1.3.+")
+    implementation("net.minecraftforge:forgespi:1.4.+")
     implementation("cpw.mods:modlauncher:3.2.+")
     implementation("com.google.code.gson:gson:2.8.0")
     implementation("org.apache.logging.log4j:log4j-api:2.11.2")
