@@ -41,7 +41,7 @@ public class CurseLocator implements IModLocator {
         // This will work well enough for displaying progress GUI
         try {
             Class.forName("org.lwjgl.glfw.GLFW");
-            return Dist.DEDICATED_SERVER;
+            return Dist.CLIENT;
         } catch (ClassNotFoundException ignored) {
             return Dist.DEDICATED_SERVER;
         }
