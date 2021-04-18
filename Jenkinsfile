@@ -37,7 +37,7 @@ pipeline {
             }
             post {
                 success {
-                    build job: 'filegenerator', parameters: [string(name: 'COMMAND', value: 'promote cpw.mods.forge:cursepacklocator ${env.MYVERSION} latest')], propagate: false, wait: false
+                    build job: 'filegenerator', parameters: [string(name: 'COMMAND', value: "promote cpw.mods.forge:cursepacklocator ${env.MYVERSION} latest")], propagate: false, wait: false
                 }
             }
         }
