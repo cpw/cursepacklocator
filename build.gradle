@@ -141,11 +141,14 @@ publishing {
     }
     repositories {
         maven {
-            credentials {
-                username project.properties.cpwMavenUser?:'fake'
-                password project.properties.cpwMavenPassword?:'news'
+            url "https://maven.minecraftforge.net/releases/"
+            authentication {
+                basic(BasicAuthentication)
             }
-            url "http://files.minecraftforge.net/maven/manage/upload"
+            credentials {
+                username = project.properties.cpwMavenUser?:'fake'
+                password = project.properties.cpwMavenPassword?:'news'
+            }
         }
     }
 }
