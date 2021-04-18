@@ -146,8 +146,8 @@ publishing {
                 basic(BasicAuthentication)
             }
             credentials {
-                username = project.properties.cpwMavenUser?:'fake'
-                password = project.properties.cpwMavenPassword?:'news'
+                username = System.env.MAVEN_USER ?:'fake'
+                password = System.env.MAVEN_PASSWORD ?:'news'
             }
         }
     }

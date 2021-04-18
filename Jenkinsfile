@@ -1,10 +1,8 @@
 @Library('forge-shared-library')_
-
 pipeline {
     agent {
         docker {
-            image 'gradlewrapper:latest'
-            args '-v gradlecache:/gradlecache'
+            image 'gradle:jdk8'
         }
     }
     environment {
@@ -12,16 +10,11 @@ pipeline {
     }
 
     stages {
-        stage('fetch') {
-            steps {
-                checkout scm
-            }
-        }
         stage('buildandtest') {
             steps {
                 sh './gradlew ${GRADLE_ARGS} --refresh-dependencies --continue build test'
                 script {
-                    env.MYVERSION = sh(returnStdout: true, script: './gradlew properties -q | grep "version:" | awk \'{print $2}\'').trim()
+                    env.MYVERSION = sh(returnStdout: true, script: './gradlew properties -q | grep "^version:" | cut -d" " -f2').trim()
                 }
             }
             post {
@@ -37,12 +30,15 @@ pipeline {
                     changeRequest()
                 }
             }
-            environment {
-                CPW_MAVEN = credentials('maven-cpw-user')
-            }
             steps {
-                sh './gradlew ${GRADLE_ARGS} publish -PcpwMavenUser=${CPW_MAVEN_USR} -PcpwMavenPassword=${CPW_MAVEN_PSW}'
-                build job: 'filegenerator', parameters: [string(name: 'COMMAND', value: 'promote cpw.mods.forge:cursepacklocator ${env.MYVERSION} latest')]
+                withCredentials([usernamePassword(credentialsId: 'maven-cpw-user', usernameVariable: 'MAVEN_USER', passwordVariable: 'MAVEN_PASSWORD')]) {
+                    sh './gradlew ${GRADLE_ARGS} publish'
+                }
+            }
+            post {
+                success {
+                    build job: 'filegenerator', parameters: [string(name: 'COMMAND', value: 'promote cpw.mods.forge:cursepacklocator ${env.MYVERSION} latest')], propagate: false, wait: false
+                }
             }
         }
     }
